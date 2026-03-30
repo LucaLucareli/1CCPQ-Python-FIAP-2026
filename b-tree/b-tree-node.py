@@ -4,18 +4,27 @@ class BTreeNode:
         self.keys = []
         self.children = []
 
-    def display(self, indent="", is_last=True):
+    def display(self, indent="", is_last=True, parent_keys=None, child_index=None):
         connector = "└── " if is_last else "├── "
         tipo = "Leaf" if self.leaf else "Node"
-        print(indent + connector + f"{self.keys} ({tipo})")
+
+        range_str = ""
+        if parent_keys is not None and child_index is not None:
+            if child_index == 0:
+                range_str = f" (-∞, {parent_keys[0]})"
+            elif child_index == len(parent_keys):
+                range_str = f" ({parent_keys[-1]}, +∞)"
+            else:
+                range_str = f" ({parent_keys[child_index-1]}, {parent_keys[child_index]})"
+
+        print(indent + connector + f"{self.keys} ({tipo}){range_str}")
 
         indent += "    " if is_last else "│   "
 
         if not self.leaf:
             for i, child in enumerate(self.children):
                 is_last_child = (i == len(self.children) - 1)
-                child.display(indent, is_last_child)
-
+                child.display(indent, is_last_child, self.keys, i)
 
 class BTree:
     def __init__(self, t):
